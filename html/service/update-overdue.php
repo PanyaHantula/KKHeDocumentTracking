@@ -16,7 +16,7 @@ $conn->query($sql_update_individual);
 $sql_update_global = "UPDATE document_track 
 SET doc_status = CASE 
     -- ลำดับ 1: ถ้ามีใครคนใดคนหนึ่งเป็น 3 (ล่าช้า) -> ภาพรวมต้องเป็น 3 ทันที (สำคัญที่สุด)
-    WHEN 3 IN (resident_status, staff_status, medical_records_status, auditor_status) THEN 3
+    WHEN 3 IN (resident_complete, staff_complete, medical_records_complete, auditor_complete) THEN 3
 
     -- ลำดับ 2: ถ้าไม่มีใครล่าช้า แต่มีใครคนใดคนหนึ่งเป็น 2 (รอสรุป) -> ภาพรวมเป็น 2
     WHEN 2 IN (resident_complete, staff_complete, medical_records_complete, auditor_complete) THEN 2

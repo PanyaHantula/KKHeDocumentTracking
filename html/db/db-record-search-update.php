@@ -135,12 +135,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && isset($_G
             $status = $_POST['auditor_status_name'] ?? '-';
             // ไม่ต้องใส่สถานนะสำเร็จให้เอกสาร ให้คงเป็น ล่าช้า เช่นเดิม
             if ($status == 'ล่าช้า') {
-                $update_sql = "UPDATE document_track SET doc_status = 4 , auditor_complete = 4, auditor_complete_at = ? WHERE doc_id = ?";
+                $update_sql = "UPDATE document_track SET auditor_complete = 4, auditor_complete_at = ? WHERE doc_id = ?";
                 $params = [$now, $docId];
                 $types = "ss";
             }
             else{
-                $update_sql = "UPDATE document_track SET doc_status = 4 , auditor_status = 4, auditor_complete = 4, auditor_complete_at = ? WHERE doc_id = ?";
+                $update_sql = "UPDATE document_track SET auditor_status = 4, auditor_complete = 4, auditor_complete_at = ? WHERE doc_id = ?";
                 $params = [$now, $docId];
                 $types = "ss";
             }
