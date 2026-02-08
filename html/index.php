@@ -14,6 +14,7 @@ header("Expires: 0");
 $name = $_SESSION['name'];
 
 include __DIR__ . '/auth.php'; 
+include __DIR__ . '/service/update-overdue.php'; 
 include __DIR__ . '/service/getsummary.php'; 
 
 $totalRecords      = $_SESSION['total_docs'] ?? 0;
@@ -32,7 +33,6 @@ $totalComplete     = $_SESSION['status_complete'] ?? 0;
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <?php include __DIR__ . '/css-link-library.php'; ?>
-    <?php include __DIR__ . '/db/db-config.php'; ?>
 
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
@@ -227,11 +227,6 @@ $totalComplete     = $_SESSION['status_complete'] ?? 0;
                         <h2>ยินดีต้อนรับสู่ระบบติดตามงานเอกสาร</h2>
                         <h5>โรงพยาบาลขอนแก่น</h5>
                     </div>
-                    <div>
-                        <span class="badge bg-light text-dark p-2 border">
-                            <i class="far fa-calendar-alt me-1"></i> <?= date('d/m/Y') ?>
-                        </span>
-                    </div>
                 </div>
 
                 <div class="row g-3 mb-4 row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-5">
@@ -289,9 +284,7 @@ $totalComplete     = $_SESSION['status_complete'] ?? 0;
                 <div class="table-container">
                     <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
                         <h5 class="mb-0 fw-bold text-primary-navy">
-                            <i class="fas fa-list me-2"></i>รายชื่อเอกสารติดตามล่าสุด
-                        </h5>
-
+                            <i class="fas fa-list me-2"></i>รายชื่อเอกสาร</h5>
                         <div class="d-flex gap-2">
                             <div class="input-group" style="width: 250px;">
                                 <span class="input-group-text bg-white border-end-0"><i
@@ -327,6 +320,7 @@ $totalComplete     = $_SESSION['status_complete'] ?? 0;
                                 <?php 
                                 $records = include __DIR__ . '/db/db-record-select.php';
                                 if (!empty($records)): 
+                                    
                                     foreach ($records as $row): 
                                         
                                         // Skip 'เสร็จสิ้น'
@@ -334,8 +328,8 @@ $totalComplete     = $_SESSION['status_complete'] ?? 0;
 
                                         $status = $row['status_name'];
                                         $badgeClass = 'bg-secondary';
-                                        
-                                        if($status == 'ล่าช้า') $badgeClass = 'bg-danger';
+
+                                        if($status == 'ล่าช้า') $badgeClass = 'bg-danger badge-pulse';
                                         elseif($status == 'รอสรุป') $badgeClass = 'bg-warning text-dark';
                                 ?>
                                 <tr>

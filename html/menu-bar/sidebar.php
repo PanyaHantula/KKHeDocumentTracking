@@ -125,9 +125,10 @@ $roleName         = $isLogin ? ($_SESSION['role_name'] ?? '-') : '-';
 
         <!-- Manu -->
         <div class="navbar-nav w-100">
-            <a href="index.php" class="nav-item nav-link"><i class="fas fa-columns"></i>ผลการดำเนินงาน</a>
-
-            <?php if ($roleId == 1 || $roleId == 2): ?>
+            <a href="index.php" class="nav-item nav-link"><i class="fas fa-columns"></i>สรุปผลการดำเนินงาน</a>
+            <a href="report.php" class="nav-item nav-link"><i class="fas fa-columns"></i>รายงาน</a>
+            <!-- admin or manager -->
+            <?php if ($roleId == 1 || $roleId == 2): ?>             
             <a href="document-record.php" class="nav-item nav-link"><i class="fas fa-search"></i>บันทึกงาน</a>
             <a href="document-register.php" class="nav-item nav-link"><i
                     class="fas fa-window-restore"></i>ลงทะเบียนเอกสาร</a>

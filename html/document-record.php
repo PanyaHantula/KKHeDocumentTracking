@@ -14,7 +14,10 @@ header("Expires: 0"); // Proxies.
 $name = $_SESSION['name'];
 include __DIR__ . '/auth.php'; 
 include __DIR__ . '/db/db-record-search-update.php';
+include __DIR__ . '/service/update-overdue.php'; 
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -26,141 +29,141 @@ include __DIR__ . '/db/db-record-search-update.php';
     <?php include __DIR__ . '/css-link-library.php'; ?>
 
     <style>
-    /* --- Theme Colors Setup --- */
-    :root {
-        --primary-deep: #003366;
-        /* น้ำเงินเข้มมาก */
-        --primary-main: #0056b3;
-        /* น้ำเงินหลัก */
-        --accent-blue: #e7f1ff;
-        /* ฟ้าอ่อนสำหรับพื้นหลังบางส่วน */
-        --success-green: #198754;
-        /* เขียว */
-    }
+        /* --- Theme Colors Setup --- */
+        :root {
+            --primary-deep: #003366;
+            /* น้ำเงินเข้มมาก */
+            --primary-main: #0056b3;
+            /* น้ำเงินหลัก */
+            --accent-blue: #e7f1ff;
+            /* ฟ้าอ่อนสำหรับพื้นหลังบางส่วน */
+            --success-green: #198754;
+            /* เขียว */
+        }
 
-    body {
-        background-color: #f0f4f8;
-        font-family: 'Sarabun', sans-serif;
-    }
+        body {
+            background-color: #f0f4f8;
+            font-family: 'Sarabun', sans-serif;
+        }
 
-    /* Card Styling */
-    .card-box {
-        border: none;
-        border-radius: 12px;
-        box-shadow: 0 4px 10px rgba(0, 51, 102, 0.08);
-        transition: all 0.3s ease;
-        background: white;
-    }
+        /* Card Styling */
+        .card-box {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 51, 102, 0.08);
+            transition: all 0.3s ease;
+            background: white;
+        }
 
-    .card-box:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(0, 51, 102, 0.15);
-    }
+        .card-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 51, 102, 0.15);
+        }
 
-    /* Step Header Styling */
-    .step-header {
-        border-left: 5px solid var(--primary-deep);
-        padding-left: 15px;
-        margin-bottom: 20px;
-        background: linear-gradient(90deg, rgba(0, 51, 102, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
-        padding-top: 5px;
-        padding-bottom: 5px;
-        border-radius: 0 8px 8px 0;
-    }
+        /* Step Header Styling */
+        .step-header {
+            border-left: 5px solid var(--primary-deep);
+            padding-left: 15px;
+            margin-bottom: 20px;
+            background: linear-gradient(90deg, rgba(0, 51, 102, 0.05) 0%, rgba(255, 255, 255, 0) 100%);
+            padding-top: 5px;
+            padding-bottom: 5px;
+            border-radius: 0 8px 8px 0;
+        }
 
-    /* Form Controls */
-    .input-group-text {
-        background-color: #f8f9fa;
-        border-color: #dee2e6;
-        color: #495057;
-    }
+        /* Form Controls */
+        .input-group-text {
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+            color: #495057;
+        }
 
-    .form-control,
-    .form-select {
-        border-color: #dee2e6;
-    }
+        .form-control,
+        .form-select {
+            border-color: #dee2e6;
+        }
 
-    .form-control:focus,
-    .form-select:focus {
-        border-color: var(--primary-main);
-        box-shadow: 0 0 0 0.25rem rgba(0, 86, 179, 0.25);
-    }
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-main);
+            box-shadow: 0 0 0 0.25rem rgba(0, 86, 179, 0.25);
+        }
 
-    .form-control:read-only {
-        background-color: #f8f9fa;
-        color: #6c757d;
-    }
+        .form-control:read-only {
+            background-color: #f8f9fa;
+            color: #6c757d;
+        }
 
-    /* Table Styling */
-    .table-custom th {
-        background-color: var(--accent-blue);
-        width: 35%;
-        color: var(--primary-deep);
-        font-weight: 600;
-        border-color: #dee2e6;
-    }
+        /* Table Styling */
+        .table-custom th {
+            background-color: var(--accent-blue);
+            width: 35%;
+            color: var(--primary-deep);
+            font-weight: 600;
+            border-color: #dee2e6;
+        }
 
-    .fixed-label {
-        width: 140px;
-        text-align: center;
-        justify-content: center;
-        background-color: var(--primary-deep);
-        color: white;
-        border: none;
-    }
+        .fixed-label {
+            width: 140px;
+            text-align: center;
+            justify-content: center;
+            background-color: var(--primary-deep);
+            color: white;
+            border: none;
+        }
 
-    /* Page Header */
-    .page-header {
-        background: linear-gradient(135deg, #001f3f 0%, #004085 100%);
-        /* ไล่สีน้ำเงินเข้ม */
-        color: white;
-        border-radius: 0 0 25px 25px;
-        margin-bottom: 35px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #001f3f 0%, #004085 100%);
+            /* ไล่สีน้ำเงินเข้ม */
+            color: white;
+            border-radius: 0 0 25px 25px;
+            margin-bottom: 35px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
 
-    /* Custom Buttons */
-    .btn-deep-blue {
-        background-color: var(--primary-deep);
-        border-color: var(--primary-deep);
-        color: white;
-        font-weight: 500;
-    }
+        /* Custom Buttons */
+        .btn-deep-blue {
+            background-color: var(--primary-deep);
+            border-color: var(--primary-deep);
+            color: white;
+            font-weight: 500;
+        }
 
-    .btn-deep-blue:hover {
-        background-color: #002244;
-        border-color: #002244;
-        color: white;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
+        .btn-deep-blue:hover {
+            background-color: #002244;
+            border-color: #002244;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
 
-    .btn-success-custom {
-        background-color: var(--success-green);
-        border-color: var(--success-green);
-        color: white;
-    }
+        .btn-success-custom {
+            background-color: var(--success-green);
+            border-color: var(--success-green);
+            color: white;
+        }
 
-    .btn-success-custom:hover {
-        background-color: #146c43;
-        box-shadow: 0 4px 8px rgba(25, 135, 84, 0.3);
-    }
+        .btn-success-custom:hover {
+            background-color: #146c43;
+            box-shadow: 0 4px 8px rgba(25, 135, 84, 0.3);
+        }
 
-    /* Custom Borders for Cards */
-    .border-blue-theme {
-        border-left: 4px solid #0056b3 !important;
-    }
+        /* Custom Borders for Cards */
+        .border-blue-theme {
+            border-left: 4px solid #0056b3 !important;
+        }
 
-    .border-green-theme {
-        border-left: 4px solid #02770c !important;
-    }
+        .border-green-theme {
+            border-left: 4px solid #02770c !important;
+        }
 
-    .border-yellow-theme {
-        border-left: 4px solid #c7b705 !important;
-    }
+        .border-yellow-theme {
+            border-left: 4px solid #c7b705 !important;
+        }
 
-    .border-red-theme {
-        border-left: 4px solid #af3508 !important;
-    }
+        .border-red-theme {
+            border-left: 4px solid #af3508 !important;
+        }
     </style>
 </head>
 
@@ -374,7 +377,12 @@ include __DIR__ . '/db/db-record-search-update.php';
                                     </div>
 
                                     <hr class="text-muted my-2">
-                                    <div class="collapse" id="collapseResident">
+                                    <!-- <div class="collapse" id="collapseResident"> -->
+                                    <?php 
+                                        $collapse = ($record['resident_complete'] == 'เสร็จสิ้น') ? 'collapse' : '';
+                                    ?>
+
+                                    <div class= "<?= $collapse ?>" id="collapseResident">
                                         <div class="pt-2">
                                             <div class="input-group mb-3">
                                                 <span class="input-group-text fixed-label"><i
@@ -435,8 +443,8 @@ include __DIR__ . '/db/db-record-search-update.php';
                                                 <div class="col-md-6">
                                                     <label class="small text-muted mb-1">สถานะการดำเนินการ</label>
                                                     <div class="input-group">
-                                                        <input type="text" class="form-control"
-                                                            value="<?= $record ? htmlspecialchars($record['resident_complete'] ?? '-') : '' ?>"
+                                                        <input type="text" class="form-control" name="resident_status_name"
+                                                            value="<?= $record ? htmlspecialchars($record['resident_status'] ?? '-') : '' ?>"
                                                             readonly>
 
                                                         <button type="button" class="btn btn-outline-secondary"
@@ -465,8 +473,9 @@ include __DIR__ . '/db/db-record-search-update.php';
                                             </div>
 
                                             <div class="mt-2 text-end">
-                                                <small class="text-muted">สถานะเอกสารปัจจุบัน: <span
-                                                        class="fw-bold text-primary"><?= $record['resident_status_text'] ?? ($record['resident_status'] ?? '-') ?></span></small>
+                                                
+                                                <small class="text-muted">หมายเหตุ: <span
+                                                        class="fw-bold text-primary"><?= ($record['resident_complete'] ?? '-') ?></span></small>
                                             </div>
                                         </div>
                                     </div>
@@ -487,9 +496,11 @@ include __DIR__ . '/db/db-record-search-update.php';
                                         </h5>
                                         <i class="fas fa-chevron-down text-muted"></i>
                                     </div>
-                                    <hr class="text-muted my-2">
-                                    <div class="collapse" id="collapseStaff">
 
+                                    <hr class="text-muted my-2"><?php 
+                                        $collapse = ($record['staff_complete'] == 'เสร็จสิ้น') ? 'collapse' : '';
+                                    ?>
+                                    <div class= "<?= $collapse ?>" id="collapseStaff">
                                         <div class="pt-3">
                                             <div class="input-group mb-3">
                                                 <span class="input-group-text fixed-label"><i
@@ -530,7 +541,7 @@ include __DIR__ . '/db/db-record-search-update.php';
 
                                             <div class="d-flex justify-content-center">
                                                 <?php 
-                                                    $resStatus = $record['resident_status'] ?? 'เสร็จสิ้น';
+                                                    $resStatus = $record['resident_complete'];
                                                     $disabled = ($resStatus == 'เสร็จสิ้น' || empty($resStatus)) ? '' : 'disabled';
                                                 ?>
                                                 <button type="submit" name="action" value="staff_start"
@@ -545,8 +556,8 @@ include __DIR__ . '/db/db-record-search-update.php';
                                                 <div class="col-md-6">
                                                     <label class="small text-muted mb-1">สถานะการดำเนินการ</label>
                                                     <div class="input-group">
-                                                        <input type="text" class="form-control"
-                                                            value="<?= $record ? htmlspecialchars($record['staff_complete']) : '' ?>"
+                                                        <input type="text" class="form-control" name = "staff_status_name"
+                                                            value="<?= $record ? htmlspecialchars($record['staff_status']) : '' ?>"
                                                             readonly>
 
                                                         <button type="button" class="btn btn-outline-secondary"
@@ -573,8 +584,11 @@ include __DIR__ . '/db/db-record-search-update.php';
                                                 </div>
                                             </div>
                                             <div class="mt-2 text-end">
-                                                <small class="text-muted">สถานะเอกสาร: <span
-                                                        class="fw-bold text-primary"><?= $record ? htmlspecialchars($record['staff_status']) : '-' ?></span></small>
+                                                <small class="text-muted">หมายเหตุ: 
+                                                    <span class="fw-bold text-primary">
+                                                        <?= $record ? htmlspecialchars($record['staff_complete']) : '-' ?>
+                                                    </span>
+                                                </small>
                                             </div>
                                         </div>
                                     </div>
@@ -597,7 +611,10 @@ include __DIR__ . '/db/db-record-search-update.php';
                                     </div>
 
                                     <hr class="text-muted my-2">
-                                    <div class="collapse" id="collapseMedical">
+                                    <?php 
+                                        $collapse = ($record['medical_records_complete'] == 'เสร็จสิ้น') ? 'collapse' : '';
+                                    ?>
+                                    <div class= "<?= $collapse ?>" id="collapseMedical">
                                         <div class="pt-3">
                                             <div class="row g-2 mb-3">
                                                 <div class="col-md-4">
@@ -628,7 +645,7 @@ include __DIR__ . '/db/db-record-search-update.php';
 
                                             <div class="d-flex justify-content-center">
                                                 <?php 
-                                                    $resStatus = $record['staff_status'] ?? 'เสร็จสิ้น';
+                                                    $resStatus = $record['staff_complete'] ?? 'เสร็จสิ้น';
                                                     $disabled = ($resStatus == 'เสร็จสิ้น' || empty($resStatus)) ? '' : 'disabled';
                                                 ?>
                                                 <button type="submit" name="action" value="medical_records_start"
@@ -643,7 +660,7 @@ include __DIR__ . '/db/db-record-search-update.php';
                                                 <div class="col-md-6">
                                                     <label class="small text-muted mb-1">สถานะการดำเนินการ</label>
                                                     <div class="input-group">
-                                                        <input type="text" class="form-control"
+                                                        <input type="text" class="form-control" name = "medical_records_status_name"
                                                             value="<?= $record ? htmlspecialchars($record['medical_records_status']) : '' ?>"
                                                             readonly>
 
@@ -671,8 +688,8 @@ include __DIR__ . '/db/db-record-search-update.php';
                                                 </div>
                                             </div>
                                             <div class="mt-2 text-end">
-                                                <small class="text-muted">สถานะเอกสาร: <span
-                                                        class="fw-bold text-primary"><?= $record ? htmlspecialchars($record['medical_records_status']) : '-' ?></span></small>
+                                                <small class="text-muted">หมายเหตุ: <span
+                                                        class="fw-bold text-primary"><?= $record ? htmlspecialchars($record['medical_records_complete']) : '-' ?></span></small>
                                             </div>
                                         </div>
                                     </div>
@@ -693,7 +710,10 @@ include __DIR__ . '/db/db-record-search-update.php';
                                     </div>
 
                                     <hr class="text-muted my-2">
-                                    <div class="collapse" id="collapseAuditor">
+                                    <?php 
+                                        $collapse = ($record['auditor_complete'] == 'เสร็จสิ้น') ? 'collapse' : '';
+                                    ?>
+                                    <div class= "<?= $collapse ?>" id="collapseAuditor">
                                         <div class="pt-3">
                                             <div class="input-group mb-3">
                                                 <span class="input-group-text fixed-label"><i
@@ -735,7 +755,7 @@ include __DIR__ . '/db/db-record-search-update.php';
 
                                             <div class="d-flex justify-content-center">
                                                 <?php 
-                                                    $resStatus = $record['medical_records_status'] ?? 'เสร็จสิ้น';
+                                                    $resStatus = $record['medical_records_complete'] ?? 'เสร็จสิ้น';
                                                     $disabled = ($resStatus == 'เสร็จสิ้น' || empty($resStatus)) ? '' : 'disabled';
                                                 ?>
                                                 <button type="submit" name="action" value="auditor_start"
@@ -750,7 +770,7 @@ include __DIR__ . '/db/db-record-search-update.php';
                                                 <div class="col-md-6">
                                                     <label class="small text-muted mb-1">สถานะการดำเนินการ</label>
                                                     <div class="input-group">
-                                                        <input type="text" class="form-control"
+                                                        <input type="text" class="form-control" name="auditor_status_name"
                                                             value="<?= $record ? htmlspecialchars($record['auditor_status']) : '' ?>"
                                                             readonly>
 
@@ -779,7 +799,7 @@ include __DIR__ . '/db/db-record-search-update.php';
                                             </div>
                                             <div class="mt-2 text-end">
                                                 <small class="text-muted">สถานะเอกสาร: <span
-                                                        class="fw-bold text-primary"><?= $record ? htmlspecialchars($record['auditor_status']) : '-' ?></span></small>
+                                                        class="fw-bold text-primary"><?= $record ? htmlspecialchars($record['auditor_complete']) : '-' ?></span></small>
                                             </div>
                                         </div>
                                     </div>
@@ -809,9 +829,9 @@ include __DIR__ . '/db/db-record-search-update.php';
                             <label class="form-label fw-bold">เลือกสถานะใหม่</label>
                             <select class="form-select" name="new_status">
                                 <option value="1">ยังไม่ส่งสรุป</option>
-                                <option value="2">รอสรุป</option>
+                                <!-- <option value="2">รอสรุป</option>
                                 <option value="3">ล่าช้า</option>
-                                <option value="4">เสร็จสิ้น</option>
+                                <option value="4">เสร็จสิ้น</option> -->
                             </select>
                         </div>
 
@@ -844,9 +864,9 @@ include __DIR__ . '/db/db-record-search-update.php';
                             <label class="form-label fw-bold">เลือกสถานะใหม่</label>
                             <select class="form-select" name="staff_new_status">
                                 <option value="1">ยังไม่ส่งสรุป</option>
-                                <option value="2">รอสรุป</option>
+                                <!-- <option value="2">รอสรุป</option>
                                 <option value="3">ล่าช้า</option>
-                                <option value="4">เสร็จสิ้น</option>
+                                <option value="4">เสร็จสิ้น</option> -->
                             </select>
                         </div>
 
@@ -879,9 +899,9 @@ include __DIR__ . '/db/db-record-search-update.php';
                             <label class="form-label fw-bold">เลือกสถานะใหม่</label>
                             <select class="form-select" name="medical_records_new_status">
                                 <option value="1">ยังไม่ส่งสรุป</option>
-                                <option value="2">รอสรุป</option>
+                                <!-- <option value="2">รอสรุป</option>
                                 <option value="3">ล่าช้า</option>
-                                <option value="4">เสร็จสิ้น</option>
+                                <option value="4">เสร็จสิ้น</option> -->
                             </select>
                         </div>
 
@@ -914,9 +934,9 @@ include __DIR__ . '/db/db-record-search-update.php';
                             <label class="form-label fw-bold">เลือกสถานะใหม่</label>
                             <select class="form-select" name="auditor_new_status">
                                 <option value="1">ยังไม่ส่งสรุป</option>
-                                <option value="2">รอสรุป</option>
+                                <!-- <option value="2">รอสรุป</option>
                                 <option value="3">ล่าช้า</option>
-                                <option value="4">เสร็จสิ้น</option>
+                                <option value="4">เสร็จสิ้น</option> -->
                             </select>
                         </div>
 

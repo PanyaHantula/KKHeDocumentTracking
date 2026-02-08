@@ -39,11 +39,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && isset($_G
             $params = [$res_id, $res_due, $res_date, $docId];
             $types = "siss"; 
             break;
+
         case 'resident_finish':
-            $update_sql = "UPDATE document_track SET resident_status = 4, resident_complete = 4, resident_complete_at = ? WHERE doc_id = ?";
-            $params = [$now, $docId];
-            $types = "ss";
+            $status = $_POST['resident_status_name'] ?? '-';
+            if ($status == 'ล่าช้า') {
+                // ไม่ต้องใส่สถานนะสำเร็จให้เอกสาร ให้คงเป็น ล่าช้า เช่นเดิม
+                $update_sql = "UPDATE document_track SET resident_complete = 4, resident_complete_at = ? WHERE doc_id = ?";
+                $params = [$now, $docId];
+                $types = "ss";
+            }
+            else{
+                $update_sql = "UPDATE document_track SET resident_status = 4, resident_complete = 4, resident_complete_at = ? WHERE doc_id = ?";
+                $params = [$now, $docId];
+                $types = "ss";
+            }
             break;
+
         case 'resident_manual_update':
             $new_status = $_POST['new_status'];
             $update_sql = "UPDATE document_track SET resident_status = ?, resident_complete = ? , resident_complete_at = ? WHERE doc_id = ?"; 
@@ -60,11 +71,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && isset($_G
             $params = [$stf_id, $stf_due, $stf_date, $docId];
             $types = "siss";
             break;
+
         case 'staff_finish':
-            $update_sql = "UPDATE document_track SET staff_status = 4, staff_complete = 4, staff_complete_at = ? WHERE doc_id = ?";
-            $params = [$now, $docId];
-            $types = "ss";
+            $status = $_POST['staff_status_name'] ?? '-';
+            // ไม่ต้องใส่สถานนะสำเร็จให้เอกสาร ให้คงเป็น ล่าช้า เช่นเดิม
+            if ($status == 'ล่าช้า') {
+                $update_sql = "UPDATE document_track SET staff_complete = 4, staff_complete_at = ? WHERE doc_id = ?";
+                $params = [$now, $docId];
+                $types = "ss";}
+            else{
+                $update_sql = "UPDATE document_track SET staff_status = 4, staff_complete = 4, staff_complete_at = ? WHERE doc_id = ?";
+                $params = [$now, $docId];
+                $types = "ss";
+                }
             break;
+
         case 'staff_manual_update':
             $new_status = $_POST['staff_new_status'];
             $update_sql = "UPDATE document_track SET staff_status = ?, staff_complete = ?, staff_complete_at = ? WHERE doc_id = ?"; 
@@ -81,9 +102,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && isset($_G
             $types = "iss";
             break;
         case 'medical_records_finish':
-            $update_sql = "UPDATE document_track SET medical_records_status = 4, medical_records_complete = 4, medical_records_complete_at = ? WHERE doc_id = ?";
-            $params = [$now, $docId];
-            $types = "ss";
+            $status = $_POST['medical_records_status_name'] ?? '-';
+            // ไม่ต้องใส่สถานนะสำเร็จให้เอกสาร ให้คงเป็น ล่าช้า เช่นเดิม
+            if ($status == 'ล่าช้า') {
+                $update_sql = "UPDATE document_track SET  medical_records_complete = 4, medical_records_complete_at = ? WHERE doc_id = ?";
+                $params = [$now, $docId];
+                $types = "ss";
+            }
+            else{
+                $update_sql = "UPDATE document_track SET medical_records_status = 4, medical_records_complete = 4, medical_records_complete_at = ? WHERE doc_id = ?";
+                $params = [$now, $docId];
+                $types = "ss";
+            }
             break;
         case 'medical_records_manual_update':
             $new_status = $_POST['medical_records_new_status'];
@@ -102,9 +132,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && isset($_G
             $types = "siss";
             break;
         case 'auditor_finish':
-            $update_sql = "UPDATE document_track SET auditor_status = 4, auditor_complete = 4, auditor_complete_at = ? WHERE doc_id = ?";
-            $params = [$now, $docId];
-            $types = "ss";
+            $status = $_POST['auditor_status_name'] ?? '-';
+            // ไม่ต้องใส่สถานนะสำเร็จให้เอกสาร ให้คงเป็น ล่าช้า เช่นเดิม
+            if ($status == 'ล่าช้า') {
+                $update_sql = "UPDATE document_track SET doc_status = 4 , auditor_complete = 4, auditor_complete_at = ? WHERE doc_id = ?";
+                $params = [$now, $docId];
+                $types = "ss";
+            }
+            else{
+                $update_sql = "UPDATE document_track SET doc_status = 4 , auditor_status = 4, auditor_complete = 4, auditor_complete_at = ? WHERE doc_id = ?";
+                $params = [$now, $docId];
+                $types = "ss";
+            }
             break;
         case 'auditor_manual_update':
             $new_status = $_POST['auditor_new_status'];
@@ -130,32 +169,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && isset($_G
             $stmt_check->execute();
             $res_check = $stmt_check->get_result()->fetch_assoc();
             
-
-            $new_doc_status = null;
-
-            // Priority Logic: 
-                       // 1. ถ้าทุกคนเป็น 1 -> สถานะรวม 1
-            if ($res_check['resident_status'] == 1 && $res_check['staff_status'] == 1 && $res_check['medical_records_status'] == 1 && $res_check['auditor_status'] == 1) {
-                $conn->query("UPDATE document_track SET doc_status = 1 WHERE doc_id = '$docId'");
-                $record['status_name'] = 'ยังไม่ส่งสรุป';
-            }
-            // 2. ถ้ามีใครคนใดคนหนึ่งเป็น 2 -> สถานะรวม 2 (กำลังดำเนินการ)
-            elseif ($res_check['resident_status'] == 2 || $res_check['staff_status'] == 2 || $res_check['medical_records_status'] == 2 || $res_check['auditor_status'] == 2 || $res_check['resident_status'] == 1 || $res_check['staff_status'] == 1 || $res_check['medical_records_status'] == 1 || $res_check['auditor_status'] == 1) {
-                $conn->query("UPDATE document_track SET doc_status = 2 WHERE doc_id = '$docId'");
-                $record['status_name'] = 'รอสรุป';
-            }
-            // 3. ถ้าทุกคนเป็น 4 -> สถานะรวม 4 (เสร็จสิ้น)
-            elseif ($res_check['resident_status'] == 4 && $res_check['staff_status'] == 4 && $res_check['medical_records_status'] == 4 && $res_check['auditor_status'] == 4) {
-                $conn->query("UPDATE document_track SET doc_status = 4 WHERE doc_id = '$docId'");
-                $record['status_name'] = 'เสร็จสิ้น';
-            }
-            // 4. ถ้ามีใครคนใดคนหนึ่งเป็น 3 -> สถานะรวม 3 (ล่าช้า/ติดขัด)
-            elseif ($res_check['resident_status'] == 3 || $res_check['staff_status'] == 3 || $res_check['medical_records_status'] == 3 || $res_check['auditor_status'] == 3) {
-                $conn->query("UPDATE document_track SET doc_status = 3 WHERE doc_id = '$docId'");
-                $record['status_name'] = 'ล่าช้า';
-            }
- 
-            
             $stmt_check->close(); 
             // -------------------------------------
 
@@ -165,6 +178,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && isset($_G
         }
         $stmt_up->close();
     }
+
+    // Update Overdue
+    include __DIR__ . '/../service/update-overdue.php'; 
+
 }
 
 // ==========================================

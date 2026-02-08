@@ -1,29 +1,36 @@
 <?php
-include __DIR__ . '/../db/db-config.php'; // ตรวจสอบ Path ให้ถูกต้อง
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+include __DIR__ . '/../db/db-config.php'; 
 
 function getDocumentStats($conn) {
+    // ใช้ COALESCE เพื่อเปลี่ยน NULL ให้เป็น 0 เสมอ
     $sql = "SELECT 
-                COUNT(doc_id) AS total_docs,
-                SUM(IF(doc_status = 1, 1, 0)) AS status_pending,
-                SUM(IF(doc_status = 2, 1, 0)) AS status_waiting,
-                SUM(IF(doc_status = 3, 1, 0)) AS status_late,
-                SUM(IF(doc_status = 4, 1, 0)) AS status_complete
+                COUNT(*) AS total_docs,
+                COALESCE(SUM(doc_status = 1), 0) AS status_pending,
+                COALESCE(SUM(doc_status = 2), 0) AS status_waiting,
+                COALESCE(SUM(doc_status = 3), 0) AS status_late,
+                COALESCE(SUM(doc_status = 4), 0) AS status_complete
             FROM document_track";
 
     $result = $conn->query($sql);
     return ($result) ? $result->fetch_assoc() : null;
 }
 
-//ดึงข้อมูล
+// ดึงข้อมูล
 $stats = getDocumentStats($conn);
 
 if ($stats) {
-    // เก็บค่าลง Session เพื่อให้ index.php นำไปใช้ได้
-    $_SESSION['total_docs']     = $stats['total_docs'] ?? 0;
-    $_SESSION['status_pending']  = $stats['status_pending'] ?? 0;
-    $_SESSION['status_waiting']  = $stats['status_waiting'] ?? 0;
-    $_SESSION['status_late']     = $stats['status_late'] ?? 0;
-    $_SESSION['status_complete'] = $stats['status_complete'] ?? 0;
+    // เก็บค่าลง Session 
+    // ใช้ (int) เพื่อบังคับให้เป็นตัวเลขเสมอ ป้องกันปัญหาในการนำไปคำนวณต่อ
+    $_SESSION['total_docs']      = (int)$stats['total_docs'];
+    $_SESSION['status_pending']  = (int)$stats['status_pending'];
+    $_SESSION['status_waiting']  = (int)$stats['status_waiting'];
+    $_SESSION['status_late']     = (int)$stats['status_late'];
+    $_SESSION['status_complete'] = (int)$stats['status_complete'];
 }
-// ไม่ต้อง $conn->close() ที่นี่ เพราะ index.php มีการ include ไฟล์ db-config ซ้ำอีกรอบ
 ?>
+
