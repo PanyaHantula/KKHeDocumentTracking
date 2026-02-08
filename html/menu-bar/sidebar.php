@@ -127,15 +127,17 @@ $roleName         = $isLogin ? ($_SESSION['role_name'] ?? '-') : '-';
         <div class="navbar-nav w-100">
             <a href="index.php" class="nav-item nav-link"><i class="fas fa-columns"></i>สรุปผลการดำเนินงาน</a>
             <a href="report.php" class="nav-item nav-link"><i class="fas fa-columns"></i>รายงาน</a>
+
             <!-- admin or manager -->
             <?php if ($roleId == 1 || $roleId == 2): ?>             
             <a href="document-record.php" class="nav-item nav-link"><i class="fas fa-search"></i>บันทึกงาน</a>
             <a href="document-register.php" class="nav-item nav-link"><i
                     class="fas fa-window-restore"></i>ลงทะเบียนเอกสาร</a>
-            <?php endif; ?>
-
             <a href="document-list.php" class="dropdown-item mx-2 pt-2"><i class="fas fa-list-alt" style="margin-right:8px;"></i>รายการทั้งหมด</a>
 
+            <?php endif; ?>
+
+            
             <!-- manager viwer -->
             <?php if ($roleId == 2): ?>
             <div class="nav-item dropdown">
