@@ -457,7 +457,7 @@ include __DIR__ . '/service/update-overdue.php';
 
                                                 <div class="col-md-3">
                                                     <label class="small text-muted mb-1">วันที่ส่งคืน</label>
-                                                    <input type="date" class="form-control"
+                                                    <input type="date" class="form-control" name="date_resident_complete"
                                                         value="<?= $record ? htmlspecialchars($record['resident_complete_at']) : '' ?>">
                                                 </div>
                                                 <div class="col-md-3">
@@ -569,7 +569,7 @@ include __DIR__ . '/service/update-overdue.php';
                                                 </div>
                                                 <div class="col-md-3">
                                                     <label class="small text-muted mb-1">วันที่ส่งคืน</label>
-                                                    <input type="date" class="form-control"
+                                                    <input type="date" class="form-control" name="date_staff_complete"
                                                         value="<?= $record ? htmlspecialchars($record['staff_complete_at']) : '' ?>">
                                                 </div>
                                                 <div class="col-md-3">
@@ -673,7 +673,7 @@ include __DIR__ . '/service/update-overdue.php';
                                                 </div>
                                                 <div class="col-md-3">
                                                     <label class="small text-muted mb-1">วันที่ส่งคืน</label>
-                                                    <input type="date" class="form-control"
+                                                    <input type="date" class="form-control" name="date_medical_records_complete"
                                                         value="<?= $record ? htmlspecialchars($record['medical_records_complete_at']) : '' ?>">
                                                 </div>
                                                 <div class="col-md-3">
@@ -783,7 +783,7 @@ include __DIR__ . '/service/update-overdue.php';
                                                 </div>
                                                 <div class="col-md-3">
                                                     <label class="small text-muted mb-1">วันที่ส่งคืน</label>
-                                                    <input type="date" class="form-control"
+                                                    <input type="date" class="form-control" name="date_auditor_complete"
                                                         value="<?= $record ? htmlspecialchars($record['auditor_complete_at']) : '' ?>">
                                                 </div>
                                                 <div class="col-md-3">
